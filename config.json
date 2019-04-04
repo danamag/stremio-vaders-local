@@ -1,0 +1,12 @@
+{
+  "username": {
+    "title": "Username",
+    "type": "string",
+    "default": ""
+  },
+  "password": {
+    "title": "Password",
+    "type": "string",
+    "default": ""
+  }
+}
