@@ -1,4 +1,9 @@
 {
+  "host": {
+    "title": "Host",
+    "type": "string",
+    "default": "http://vapi.vaders.tv/"
+  },
   "username": {
     "title": "Username",
     "type": "string",

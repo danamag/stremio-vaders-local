@@ -7,6 +7,10 @@ const channelMap = {}
 const metas = {}
 let token
 
+let loginExpire = 0
+
+let endpoint = 'http://vapi.vaders.tv/'
+
 function btoa(str) {
 	var buffer;
 
@@ -26,7 +30,7 @@ function expired(cb) { cb(!(loginExpire > getTimestamp())) }
 function isLogedIn(local, cb) {
 	expired(isExpired => {
 		if (isExpired) {
-			modules.get.needle.get('http://vapi.vaders.tv/users/me?token=' + token, (err, resp, body) => {
+			modules.get.needle.get(endpoint + 'users/me?token=' + token, (err, resp, body) => {
 				if (body && body.message) {
 					console.log(body.message)
 					cb()
@@ -51,6 +55,7 @@ function request(url, cb) {
 module.exports = {
 	manifest: local => {
 		const config = local.config
+		endpoint = config.host || endpoint
 		token = btoa(JSON.stringify({ username: config.username, password: config.password }))
 		modules.set(local.modules)
 
@@ -69,12 +74,12 @@ module.exports = {
 		}
 
 		return new Promise((resolve, reject) => {
-			isLogedIn(cats => {
+			isLogedIn(local, cats => {
 				if (cats && cats.length) {
 					categories = cats
 					const qu = modules.get.async.queue((cat, cb) => {
 						if (cat && cat.id && cat.id > 1) {
-							modules.get.request('http://vapi.vaders.tv/epg/channels?token=' + token + '&category_id=' + cat.id, (err, resp, body) => {
+							modules.get.request(endpoint + 'epg/channels?token=' + token + '&category_id=' + cat.id, (err, resp, body) => {
 								if (body && Array.isArray(body) && body.length) {
 									channels[cat.name] = body.map(toMeta)
 									catalogs.push({
@@ -104,23 +109,12 @@ module.exports = {
 			})
 		})
 
-
-		return {
-			id: 'org.vaderstv',
-			version: '1.0.1',
-			name: 'Vader Streams IPTV',
-			description: 'IPTV Service - Requires Subscription',
-			resources: ['stream', 'meta', 'catalog'],
-			types: ['tv'],
-			idPrefixes: ['vaders_'],
-			icon: 'https://res.cloudinary.com/teepublic/image/private/s--LVDsoQK4--/t_Preview/b_rgb:191919,c_limit,f_jpg,h_630,q_90,w_630/v1475223127/production/designs/707738_1.jpg',
-			catalogs
-		}
 	},
 	handler: (args, local) => {
 		modules.set(local.modules)
 		const persist = local.persist
 		const config = local.config
+		endpoint = config.host || endpoint
 
 		if (!catalogs.length && persist.catalogs.length)
 			catalogs = persist.catalogs
@@ -152,7 +146,7 @@ module.exports = {
 					const stopTS = new Date(Date.now() + 10800000).toISOString().split('.')[0].replace(/[^0-9.]/g, "")
 					const channelId = args.id.split('_')[1]
 					if (channelId)
-						request('http://vapi.vaders.tv/epg/channels/'+channelId+'?token='+token+'&start='+startTS+'&stop='+stopTS, (err, resp, body) => {
+						request(endpoint + 'epg/channels/'+channelId+'?token='+token+'&start='+startTS+'&stop='+stopTS, (err, resp, body) => {
 							if (body) {
 								if (body[0] && body[0].id)
 									resolve({ meta: toMeta(body[0]) })
@@ -186,7 +180,7 @@ module.exports = {
 				if (args.id) {
 					let streamId = args.id.split('_')
 					streamId = streamId[streamId.length-1]
-					resolve({ streams: [{ title: 'Play Now', url: 'http://vapi.vaders.tv/play/' + streamId + '.m3u8?token=' + token }] })
+					resolve({ streams: [{ title: 'Play Now', url: endpoint + 'play/' + streamId + '.m3u8?token=' + token }] })
 				} else
 					resolve()
 			}
