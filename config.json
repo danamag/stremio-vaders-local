@@ -2,16 +2,19 @@
   "host": {
     "title": "Host",
     "type": "string",
-    "default": "http://vapi.vaders.tv/"
+    "default": "http://vapi.vaders.tv/",
+    "required": true
   },
   "username": {
     "title": "Username",
     "type": "string",
-    "default": ""
+    "default": "",
+    "required": true
   },
   "password": {
     "title": "Password",
     "type": "string",
-    "default": ""
+    "default": "",
+    "required": true
   }
 }
