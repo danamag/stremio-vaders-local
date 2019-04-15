@@ -65,7 +65,7 @@ function retrieveManifest() {
 			name: 'Vader Streams IPTV',
 			description: 'IPTV Service - Requires Subscription',
 			resources: ['stream', 'meta', 'catalog'],
-			types: ['iptv', 'tv'],
+			types: ['tv'],
 			idPrefixes: ['vaders_'],
 			icon: 'https://res.cloudinary.com/teepublic/image/private/s--LVDsoQK4--/t_Preview/b_rgb:191919,c_limit,f_jpg,h_630,q_90,w_630/v1475223127/production/designs/707738_1.jpg',
 			catalogs
@@ -84,7 +84,7 @@ function retrieveManifest() {
 								if (body && Array.isArray(body) && body.length) {
 									channels[cat.name] = body.map(toMeta)
 									catalogs.push({
-										type: 'iptv',
+										type: 'tv',
 										id: cat.name,
 										name: cat.name,
 										extraSupported: ['search']
